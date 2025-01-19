@@ -1,21 +1,16 @@
 
-local ids = {
-    startup = "vvd47FkK",
-    Chest = "uHnKqwfY",
-    Cache = "7yQBA3gS"
-}
+local url = "https://raw.githubusercontent.com/Millo5/ComputerCraft/master/src/lua/"
+local ids = { "startup", "Cache", "Chest" }
 
--- delete old files
-for k, v in pairs(ids) do
-    if fs.exists(k .. ".lua") then
-        fs.delete(k .. ".lua")
+for i, v in pairs(ids) do
+    if fs.exists(v .. ".lua") then
+        fs.delete(v .. ".lua")
     end
 end
 
--- download new files
-for k, v in pairs(ids) do
-    local h = http.get("https://pastebin.com/raw/" .. v)
-    local f = fs.open(k .. ".lua", "w")
+for i, v in pairs(ids) do
+    local h = http.get(url .. v .. ".lua")
+    local f = fs.open(v .. ".lua", "w")
     f.write(h.readAll())
     f.close()
     h.close()
