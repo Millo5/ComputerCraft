@@ -29,8 +29,9 @@ end
 
 function Cache:getStorageChests()
     local chests = { peripheral.find("inventory") }
+    local invalid = { self.trayId, "front", "back", "left", "right", "top", "bottom" }
     for i, chest in pairs(chests) do
-        if peripheral.getName(chest) == self.trayId then
+        if list_contains(invalid, peripheral.getName(chest)) then
             table.remove(chests, i)
         end
     end
@@ -179,8 +180,8 @@ function Cache:cacheAll()
 end
 
 function Cache:addTray()
-    local chests = { peripheral.find("inventory") }
-    local trayChest = Chest.new(peripheral.wrap("left"))
+    local trayChest = Cache:getTrayChest()
+    local chests = Cache:getStorageChests()
 
     local targetChest = nil
     for slot, item in pairs(trayChest.inv.list()) do
