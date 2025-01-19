@@ -115,7 +115,7 @@ function Cache:load()
         end
 
         if string.sub(line, 1, 1) == "#" then
-            chest = string.sub(line, 2, string.len(line) - 1)
+            chest = string.sub(line, 2, string.len(line))
             self.cache[chest] = {}
         else
             local item, count = string.match(line, "(%w+) (%d+)")
@@ -131,10 +131,10 @@ function Cache:load()
         end
 
         if string.sub(line, 1, 1) == "#" then
-            item = string.sub(line, 2, string.len(line) - 1)
+            item = string.sub(line, 2, string.len(line))
             self.itemCache[item] = {count = 0, chests = {}}
         else
-            if item == nil then
+            if line == nil or line == "" then
                 break
             end
 
@@ -183,7 +183,7 @@ function Cache:cacheAll()
 end
 
 function Cache:addTray()
-    local trayChest = Cache:getTrayChest()
+    local trayChest = self:getTrayChest()
     local chests = Cache:getStorageChests()
 
     local targetChest = nil
@@ -194,9 +194,8 @@ function Cache:addTray()
             if targetChest ~= nil then
                 print("Pushing to " .. targetChest.name .. " from " .. trayChest.name)
                 print("Item count before: " .. item.count)
-                trayChest:moveAll(targetChest)
-                print("Pushed " .. count .. " items to " .. targetChest.name)
-                print("Item count: " .. item.count)
+                trayChest:moveItems(targetChest, slot, item.count)
+                print("Item count after: " .. item.count)
             else
                 local chest = chests[1]
                 targetChest = Chest.new(chest)
