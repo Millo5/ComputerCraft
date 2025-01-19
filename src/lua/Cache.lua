@@ -186,6 +186,8 @@ function Cache:addTray()
     local trayChest = self:getTrayChest()
     local chests = self:getStorageChests()
 
+    local outOfSpace = false
+
     local targetChest = nil
     for slot, item in pairs(trayChest.inv.list()) do
 
@@ -229,7 +231,7 @@ function Cache:addTray()
 
                     if targetChest == nil then
                         -- No chests have room to stack the item, break out of loop
-                        error("No chests have room to stack the item")
+                        outOfSpace = true
                         break
                     end
 
@@ -248,6 +250,14 @@ function Cache:addTray()
     end
 
     self:cacheAll()
+
+    if outOfSpace then
+        print("Out of space!")
+        sleep(5)
+        print("Enter to continue")
+        read()
+    end
+
 
 end
 
