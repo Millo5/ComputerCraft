@@ -215,18 +215,14 @@ function Cache:addTray()
                     if targetChest == nil then
                         -- No chest had room to stack the item find a new chest that has room
                         local chests = self:getStorageChests()
-                        for i, c in pairs(chests) do
-                            local chest = peripheral.wrap(c.name)
-                            if chest ~= nil then
-                                local chest = Chest.new(chest)
-                                local moved = trayChest:moveItems(chest, slot, item.count)
-                                item.count = item.count - moved
+                        for i, chest in pairs(chests) do
+                            local chest = Chest.new(chest)
+                            local moved = trayChest:moveItems(chest, slot, item.count)
+                            item.count = item.count - moved
 
-                                if (moved > 0) then
-                                    targetChest = chest
-                                    break
-                                end
-
+                            if (moved > 0) then
+                                targetChest = chest
+                                break
                             end
                         end
                     end
