@@ -8,7 +8,7 @@ function Cache.new()
     local self = {}
     setmetatable(self, Cache)
     self.cache = {} -- { chestName: { itemName: count } }
-    self.itemCache = {} -- { itemName: { chestName } }
+    self.itemCache = {} -- { itemName: { count: count, chests: { chestName } } }
     return self
 end
 
@@ -25,10 +25,11 @@ function Cache:cacheChest(chest)
         self.cache[chest.name][item.name] = count + item.count
 
         if self.itemCache[item.name] == nil then
-            self.itemCache[item.name] = {}
+            self.itemCache[item.name] = {count = 0, chests = {}}
         end
 
-        table.insert(self.itemCache[item.name], chest.name)
+        self.itemCache[item.name].count = self.itemCache[item.name].count + item.count
+        table.insert(self.itemCache[item.name].chests, chest.name)
 
     end
 
@@ -49,8 +50,9 @@ function Cache:save()
 
     for item, chests in pairs(self.itemCache) do
         file.write("#" .. item .. "\n")
+        file.write(chests.count .. "\n")
 
-        for i, chest in pairs(chests) do
+        for i, chest in pairs(chests.chests) do
             file.write(chest .. "\n")
         end
     end
@@ -93,9 +95,21 @@ function Cache:load()
 
         if string.sub(line, 1, 1) == "#" then
             item = string.sub(line, 2, string.len(line) - 1)
-            self.itemCache[item] = {}
+            self.itemCache[item] = {count = 0, chests = {}}
         else
-            table.insert(self.itemCache[item], line)
+            if item == nil then
+                break
+            end
+
+            if self.itemCache[item] == nil then
+                self.itemCache[item] = {count = 0, chests = {}}
+            end
+
+            if self.itemCache[item].count == 0 then
+                self.itemCache[item].count = tonumber(line)
+            else
+                table.insert(self.itemCache[item].chests, line)
+            end
         end
     end
 

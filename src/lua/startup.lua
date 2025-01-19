@@ -23,6 +23,8 @@ function main()
             break
         elseif choice == "list" then
             cache:print()
+            print("Press enter to continue")
+            read() -- Wait for enter
         elseif choice == "index" then
             print("Indexing...")
             cache:cacheAll()
