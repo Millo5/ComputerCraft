@@ -31,9 +31,9 @@ function Cache:getStorageChests()
     local chests = { peripheral.find("inventory") }
     local invalid = { self.trayId, "front", "back", "left", "right", "top", "bottom" }
     for i, chest in pairs(chests) do
-        print(chest.getName(chest))
+        print(peripheral.getName(chest))
         if list_contains(invalid, peripheral.getName(chest)) then
-            print("Removing " .. peripheral.getName(chest))
+            print("  Removing")
             table.remove(chests, i)
         end
     end
@@ -108,6 +108,7 @@ function Cache:load()
 
     while true do
         local line = file.readLine()
+        print(line)
 
         if line == nil then
             break
