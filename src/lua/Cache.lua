@@ -80,11 +80,11 @@ function Cache:save()
 
     file.write("\n")
 
-    for item, chests in pairs(self.itemCache) do
-        file.write("#" .. item .. " " .. item.display .. "\n")
-        file.write(chests.count .. "\n")
+    for id, data in pairs(self.itemCache) do
+        file.write("#" .. id .. " " .. data.display .. "\n")
+        file.write(data.count .. "\n")
 
-        for i, chest in pairs(chests.chests) do
+        for i, chest in pairs(data.chests) do
             file.write(chest .. "\n")
         end
     end
