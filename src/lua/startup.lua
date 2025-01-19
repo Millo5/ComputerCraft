@@ -26,6 +26,7 @@ function main()
         elseif choice == "index" then
             print("Indexing...")
             cache:cacheAll()
+            cache:save()
         end
 
     end
