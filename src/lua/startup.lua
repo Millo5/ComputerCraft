@@ -35,9 +35,7 @@ function main()
 end
 
 function handleChoice(choice, args)
-    if choice == "exit" then
-        break
-    elseif choice == "list" then
+    if choice == "list" then
         cache:print()
         print("Press enter to continue")
         read() -- Wait for enter
