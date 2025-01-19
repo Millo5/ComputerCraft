@@ -17,7 +17,7 @@ function Chest:moveAll(to)
 end
 
 function Chest:moveItems(to, slot, count)
-    self.inv.pushItems(to.name, slot, count)
+    return self.inv.pushItems(to.name, slot, count)
 end
 
 return Chest

@@ -191,14 +191,60 @@ function Cache:addTray()
 
         while item.count > 0 do
             
-            if targetChest ~= nil then
-                print("Pushing to " .. targetChest.name .. " from " .. trayChest.name)
-                print("Item count before: " .. item.count)
-                trayChest:moveItems(targetChest, slot, item.count)
-                print("Item count after: " .. item.count)
-            else
-                local chest = chests[1]
-                targetChest = Chest.new(chest)
+            if targetChest == nil then
+                -- Find chest that has the item and has room
+                local itemCache = self.itemCache[item.name]
+                if itemCache ~= nil then
+                    local foundIn = self.itemCache[item.name].chests
+                    -- Check if any of the chests have room
+                    for i, chestName in pairs(foundIn) do
+                        local chest = peripheral.wrap(chestName)
+                        if chest ~= nil then
+                            local chest = Chest.new(chest)
+                            local moved = chest:moveItems(trayChest, slot, item.count)
+                            item.count = item.count - moved
+
+                            if (moved > 0) then
+                                targetChest = chest
+                                break
+                            end
+
+                        end
+                    end
+
+                    if targetChest == nil then
+                        -- No chest had room to stack the item find a new chest that has room
+                        local chests = self:getStorageChests()
+                        for i, chestName in pairs(chests) do
+                            local chest = peripheral.wrap(chestName)
+                            if chest ~= nil then
+                                local chest = Chest.new(chest)
+                                local moved = chest:moveItems(trayChest, slot, item.count)
+                                item.count = item.count - moved
+
+                                if (moved > 0) then
+                                    targetChest = chest
+                                    break
+                                end
+
+                            end
+                        end
+                    end
+
+                    if targetChest == nil then
+                        -- No chests have room to stack the item, break out of loop
+                        error("No chests have room to stack the item")
+                        break
+                    end
+
+                end
+            end
+
+            local moved = trayChest:moveItems(targetChest, slot, item.count)
+            item.count = item.count - moved
+
+            if (moved == 0) then
+                targetChest = nil
             end
 
         end
