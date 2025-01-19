@@ -1,4 +1,6 @@
 
+local Chest = require("Chest")
+
 local Cache = {}
 Cache.__index = Cache
 
