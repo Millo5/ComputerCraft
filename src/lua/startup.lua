@@ -50,7 +50,7 @@ function main()
                 print("No id provided")
                 print("Press enter to continue")
                 read()
-                break
+                goto continue
             end
 
             print("Getting " .. count .. " of " .. id)
@@ -59,6 +59,7 @@ function main()
             cache:fetch(id, count)
         end
 
+        ::continue::
     end
 
 end
