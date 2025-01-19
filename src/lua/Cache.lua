@@ -1,4 +1,4 @@
-
+local completion = require("cc.completion")
 local Chest = require("Chest")
 
 local Cache = {}
@@ -95,8 +95,9 @@ function Cache:load()
     local item = nil
 
     if file == nil then
+        local names = peripheral.getNames()
         write("Enter tray id: ")
-        self.trayId = read()
+        self.trayId = read(nil, names, function(text) return completion.choice(text, names) end)
         return
     end
 
