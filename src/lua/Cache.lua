@@ -42,7 +42,6 @@ function Cache:cacheChest(chest)
         if not list_contains(self.itemCache[item.name].chests, chest.name) then
             table.insert(self.itemCache[item.name].chests, chest.name)
         end
-
     end
 end
 
@@ -148,6 +147,9 @@ function Cache:cacheAll()
     local chests = { peripheral.find("inventory") }
     local trayChest = Chest.new(peripheral.wrap("left"))
 
+    self.cache = {}
+    self.itemCache = {}
+
     for i, chest in pairs(chests) do
         local chest = Chest.new(chest)
         if chest.name ~= trayChest.name then
@@ -176,7 +178,7 @@ function Cache:addTray()
             
             if targetChest ~= nil then
                 print("Item count before: " .. item.count)
-                local count = trayChest.inv.pushItems(targetChest.name, slot, item.count)
+                trayChest.pushItems(targetChest, slot, item.count)
                 print("Pushed " .. count .. " items to " .. targetChest.name)
                 print("Item count: " .. item.count)
             else
