@@ -12,6 +12,16 @@ function Cache.new()
     return self
 end
 
+function list_contains(list, item)
+    for i, v in pairs(list) do
+        if v == item then
+            return true
+        end
+    end
+    return false
+end
+
+
 function Cache:cacheChest(chest)
     self.cache[chest.name] = {}
 
@@ -29,12 +39,11 @@ function Cache:cacheChest(chest)
         end
 
         self.itemCache[item.name].count = self.itemCache[item.name].count + item.count
-        if not table.contains(self.itemCache[item.name].chests, chest.name) then
+        if not list_contains(self.itemCache[item.name].chests, chest.name) then
             table.insert(self.itemCache[item.name].chests, chest.name)
         end
 
     end
-
 end
 
 function Cache:save()
