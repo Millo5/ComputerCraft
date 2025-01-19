@@ -23,6 +23,7 @@ function main()
         term.setCursorPos(1, 2)
         term.write("Choice> ")
         local choice = read(nil, choices, function(text) return completion.choice(text, choices) end)
+        local args = choice.split(" ")
 
         if choice == "exit" then
             break
@@ -37,8 +38,7 @@ function main()
         elseif choice == "add" then
             cache:addTray()
             cache:save()
-        elseif choice == "get" then
-            local args = choice.split(" ")
+        elseif args[1] == "get" then
             local id = args[2]
             local count = args[3] or 1
 
@@ -48,6 +48,9 @@ function main()
                 read()
                 break
             end
+
+            print("Getting " .. count .. " of " .. id)
+            sleep(1)
 
             cache:fetch(id, count)
         end
