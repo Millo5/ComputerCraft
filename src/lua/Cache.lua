@@ -119,11 +119,17 @@ end
 
 function Cache:print()
     for i, item in pairs(self.cache) do
-        print(i, item)
+        print(i)
+        for j, count in pairs(item) do
+            print("  ", j, count)
+        end
     end
     print("\n")
     for i, item in pairs(self.itemCache) do
-        print(i, item)
+        print(i, item.count)
+        for j, chest in pairs(item.chests) do
+            print("  ", chest)
+        end
     end
 end
 

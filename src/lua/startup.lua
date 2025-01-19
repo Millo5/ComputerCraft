@@ -12,7 +12,7 @@ function main()
         term.clear()
         term.setCursorPos(1, 1)
 
-        local choices = { "exit", "list", "index" }
+        local choices = { "list", "index" }
 
         term.write("Choices: " .. table.concat(choices, ", "))
         term.setCursorPos(1, 2)
