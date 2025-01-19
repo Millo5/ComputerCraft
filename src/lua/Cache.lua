@@ -110,7 +110,7 @@ function Cache:load()
         local line = file.readLine()
         print(line)
 
-        if line == nil then
+        if line == nil or line == "" then
             break
         end
 
@@ -126,7 +126,7 @@ function Cache:load()
     while true do
         local line = file.readLine()
 
-        if line == nil then
+        if line == nil or line == "" then
             break
         end
 
