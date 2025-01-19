@@ -15,9 +15,9 @@ end
 
 for i, v in pairs(ids) do
     print("Downloading " .. v .. ".lua")
-    -- local h = http.get(url .. v .. ".lua")
-    -- local f = fs.open(v .. ".lua", "w")
-    -- f.write(h.readAll())
-    -- f.close()
-    -- h.close()
+    local h = http.get(url .. v .. ".lua")
+    local f = fs.open(v .. ".lua", "w")
+    f.write(h.readAll())
+    f.close()
+    h.close()
 end
