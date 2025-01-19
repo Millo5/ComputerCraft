@@ -8,6 +8,11 @@ for i, v in pairs(ids) do
     end
 end
 
+-- Delete cache file
+if fs.exists("cache") then
+    fs.delete("cache")
+end
+
 for i, v in pairs(ids) do
     print("Downloading " .. v .. ".lua")
     local h = http.get(url .. v .. ".lua")
