@@ -201,7 +201,7 @@ function Cache:addTray()
                         local chest = peripheral.wrap(chestName)
                         if chest ~= nil then
                             local chest = Chest.new(chest)
-                            local moved = chest:moveItems(trayChest, slot, item.count)
+                            local moved = trayChest:moveItems(chest, slot, item.count)
                             item.count = item.count - moved
 
                             if (moved > 0) then
@@ -219,7 +219,7 @@ function Cache:addTray()
                             local chest = peripheral.wrap(chestName)
                             if chest ~= nil then
                                 local chest = Chest.new(chest)
-                                local moved = chest:moveItems(trayChest, slot, item.count)
+                                local moved = trayChest:moveItems(chest, slot, item.count)
                                 item.count = item.count - moved
 
                                 if (moved > 0) then
