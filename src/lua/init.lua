@@ -9,8 +9,8 @@ for i, v in pairs(ids) do
 end
 
 -- Delete cache file
-if fs.exists("cache") then
-    fs.delete("cache")
+if fs.exists("savedCache") then
+    fs.delete("savedCache")
 end
 
 for i, v in pairs(ids) do

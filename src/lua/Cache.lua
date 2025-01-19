@@ -23,13 +23,18 @@ function list_contains(list, item)
 end
 
 
-function Cache.getTrayChest()
-
+function Cache:getTrayChest()
+    return Chest.new(peripheral.wrap(self.trayId))
 end
 
-function Cache.getStorageChests()
+function Cache:getStorageChests()
     local chests = { peripheral.find("inventory") }
-    local trayChest
+    for i, chest in pairs(chests) do
+        if peripheral.getName(chest) == self.trayId then
+            table.remove(chests, i)
+        end
+    end
+    return chests
 end
 
 
@@ -161,17 +166,14 @@ function Cache:print()
 end
 
 function Cache:cacheAll()
-    local chests = { peripheral.find("inventory") }
-    local trayChest = Chest.new(peripheral.wrap("left"))
+    local chests = Cache:getStorageChests()
 
     self.cache = {}
     self.itemCache = {}
 
     for i, chest in pairs(chests) do
         local chest = Chest.new(chest)
-        if chest.name ~= trayChest.name then
-            self:cacheChest(chest)
-        end
+        self:cacheChest(chest)
     end
 end
 
