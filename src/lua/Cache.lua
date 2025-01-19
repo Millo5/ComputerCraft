@@ -8,7 +8,8 @@ function Cache.new()
     local self = {}
     setmetatable(self, Cache)
     self.cache = {} -- { chestName: { itemName: count } }
-    self.itemCache = {} -- { itemName: { count: count, chests: { chestName } } }
+    self.itemCache = {} -- { itemName: { display: name, count: count, chests: { chestName } } }
+
     self.trayId = nil
     return self
 end
@@ -52,7 +53,9 @@ function Cache:cacheChest(chest)
         self.cache[chest.name][item.name] = count + item.count
 
         if self.itemCache[item.name] == nil then
-            self.itemCache[item.name] = {count = 0, chests = {}}
+            local itemCache = {count = 0, chests = {}}
+            itemCache.display = chest.inv.getItemDetail(i).displayName
+            self.itemCache[item.name] = itemCache
         end
 
         self.itemCache[item.name].count = self.itemCache[item.name].count + item.count
@@ -78,7 +81,7 @@ function Cache:save()
     file.write("\n")
 
     for item, chests in pairs(self.itemCache) do
-        file.write("#" .. item .. "\n")
+        file.write("#" .. item .. " " .. item.display .. "\n")
         file.write(chests.count .. "\n")
 
         for i, chest in pairs(chests.chests) do
@@ -129,8 +132,9 @@ function Cache:load()
         end
 
         if string.sub(line, 1, 1) == "#" then
-            item = string.sub(line, 2, string.len(line))
-            self.itemCache[item] = {count = 0, chests = {}}
+            local id, display = string.match(line, "#(%w+) (.+)")
+            item = id
+            self.itemCache[item] = {count = 0, chests = {}, display = display}
         else
             if line == nil or line == "" then
                 break
@@ -279,8 +283,6 @@ function Cache:fetch(id, count)
             while count > 0 do
                 local moved = chest:moveItemsById(tray, id, count)
                 count = count - moved
-                print("Moved " .. moved .. ", " .. count .. " left")
-                sleep(0.2)
 
                 if count == 0 then
                     break
