@@ -15,7 +15,9 @@ end
 
 for i, v in pairs(ids) do
     print("Downloading " .. v .. ".lua")
-    local h = http.get(url .. v .. ".lua")
+    local uniqueParam = "?nocache=" .. os.epoch("utc")
+
+    local h = http.get(url .. v .. ".lua" .. uniqueParam)
     local f = fs.open(v .. ".lua", "w")
     f.write(h.readAll())
     f.close()
