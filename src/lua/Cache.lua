@@ -29,7 +29,9 @@ function Cache:cacheChest(chest)
         end
 
         self.itemCache[item.name].count = self.itemCache[item.name].count + item.count
-        table.insert(self.itemCache[item.name].chests, chest.name)
+        if not table.contains(self.itemCache[item.name].chests, chest.name) then
+            table.insert(self.itemCache[item.name].chests, chest.name)
+        end
 
     end
 
@@ -143,6 +145,41 @@ function Cache:cacheAll()
             self:cacheChest(chest)
         end
     end
+end
+
+function Cache:addTray()
+    local chests = { peripheral.find("inventory") }
+    local trayChest = Chest.new(peripheral.wrap("left"))
+
+    -- filter out the tray chest
+    for i, chest in pairs(chests) do
+        if chest == trayChest.name then
+            table.remove(chests, i)
+            break
+        end
+    end
+
+
+    local targetChest = nil
+    for slot, item in pairs(trayChest.inv.list()) do
+
+        while item.count > 0 do
+            
+            if targetChest ~= nil then
+                print("Item count before: " .. item.count)
+                local count = trayChest.inv.pushItems(targetChest.name, slot, item.count)
+                print("Pushed " .. count .. " items to " .. targetChest.name)
+                print("Item count: " .. item.count)
+            else
+                local chest = chests[1]
+                targetChest = Chest.new(chest)
+            end
+
+        end
+
+    end
+
+
 end
 
 return Cache

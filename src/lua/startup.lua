@@ -12,7 +12,11 @@ function main()
         term.clear()
         term.setCursorPos(1, 1)
 
-        local choices = { "list", "index" }
+        local choices = {
+            "list",
+            "index",
+            "add" -- Add items from the tray to the main storage
+        }
 
         term.write("Choices: " .. table.concat(choices, ", "))
         term.setCursorPos(1, 2)
@@ -28,6 +32,9 @@ function main()
         elseif choice == "index" then
             print("Indexing...")
             cache:cacheAll()
+            cache:save()
+        elseif choice == "add" then
+            cache:addTray()
             cache:save()
         end
 
