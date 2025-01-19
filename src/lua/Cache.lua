@@ -171,7 +171,7 @@ function Cache:print()
 end
 
 function Cache:cacheAll()
-    local chests = Cache:getStorageChests()
+    local chests = self:getStorageChests()
 
     self.cache = {}
     self.itemCache = {}
@@ -184,7 +184,7 @@ end
 
 function Cache:addTray()
     local trayChest = self:getTrayChest()
-    local chests = Cache:getStorageChests()
+    local chests = self:getStorageChests()
 
     local targetChest = nil
     for slot, item in pairs(trayChest.inv.list()) do
