@@ -5,6 +5,7 @@ local completion = require("cc.completion")
 local cache = Cache.new()
 
 cache:load()
+cache:cacheAll()
 
 function main()
 
@@ -23,7 +24,10 @@ function main()
         term.setCursorPos(1, 2)
         term.write("Choice> ")
         local choice = read(nil, choices, function(text) return completion.choice(text, choices) end)
-        local args = choice.split(" ")
+        local args = {}
+        for arg in string.gmatch(choice, "%S+") do
+            table.insert(args, arg)
+        end
 
         if choice == "exit" then
             break
