@@ -29,39 +29,41 @@ function main()
             table.insert(args, arg)
         end
 
-        if choice == "exit" then
-            break
-        elseif choice == "list" then
-            cache:print()
-            print("Press enter to continue")
-            read() -- Wait for enter
-        elseif choice == "index" then
-            print("Indexing...")
-            cache:cacheAll()
-            cache:save()
-        elseif choice == "add" then
-            cache:addTray()
-            cache:save()
-        elseif args[1] == "get" then
-            local id = args[2]
-            local count = args[3] or 1
-
-            if id == nil then
-                print("No id provided")
-                print("Press enter to continue")
-                read()
-                goto continue
-            end
-
-            print("Getting " .. count .. " of " .. id)
-            sleep(1)
-
-            cache:fetch(id, count)
-        end
-
-        ::continue::
+        handleChoice(choice, args)
     end
 
+end
+
+function handleChoice(choice, args)
+    if choice == "exit" then
+        break
+    elseif choice == "list" then
+        cache:print()
+        print("Press enter to continue")
+        read() -- Wait for enter
+    elseif choice == "index" then
+        print("Indexing...")
+        cache:cacheAll()
+        cache:save()
+    elseif choice == "add" then
+        cache:addTray()
+        cache:save()
+    elseif args[1] == "get" then
+        local id = args[2]
+        local count = args[3] or 1
+
+        if id == nil then
+            print("No id provided")
+            print("Press enter to continue")
+            read()
+            return
+        end
+
+        print("Getting " .. count .. " of " .. id)
+        sleep(1)
+
+        cache:fetch(id, count)
+    end
 end
 
 main()
