@@ -9,6 +9,7 @@ function Cache.new()
     setmetatable(self, Cache)
     self.cache = {} -- { chestName: { itemName: count } }
     self.itemCache = {} -- { itemName: { count: count, chests: { chestName } } }
+    self.trayId = nil
     return self
 end
 
@@ -19,6 +20,16 @@ function list_contains(list, item)
         end
     end
     return false
+end
+
+
+function Cache.getTrayChest()
+
+end
+
+function Cache.getStorageChests()
+    local chests = { peripheral.find("inventory") }
+    local trayChest
 end
 
 
@@ -47,6 +58,8 @@ end
 
 function Cache:save()
     local file = fs.open("savedCache", "w")
+
+    file.write(self.trayId .. "\n")
 
     for chest, items in pairs(self.cache) do
         file.write("#" .. chest .. "\n")
@@ -77,8 +90,12 @@ function Cache:load()
     local item = nil
 
     if file == nil then
+        write("Enter tray id: ")
+        self.trayId = read()
         return
     end
+
+    self.trayId = file.readLine()
 
     while true do
         local line = file.readLine()
