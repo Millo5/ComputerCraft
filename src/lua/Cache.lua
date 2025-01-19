@@ -31,9 +31,7 @@ function Cache:getStorageChests()
     local chests = { peripheral.find("inventory") }
     local invalid = { self.trayId, "front", "back", "left", "right", "top", "bottom" }
     for i, chest in pairs(chests) do
-        print(peripheral.getName(chest))
         if list_contains(invalid, peripheral.getName(chest)) then
-            print("  Removing")
             table.remove(chests, i)
         end
     end
@@ -253,11 +251,39 @@ function Cache:addTray()
 
     if outOfSpace then
         print("Out of space!")
-        sleep(5)
-        print("Enter to continue")
+        sleep(2)
+        print("\nEnter to continue\n")
         read()
     end
 
+end
+
+
+function Cache:fetch(id, count)
+    
+    local itemCache = self.itemCache[id]
+    local tray = self:getTrayChest()
+
+    if itemCache == nil then
+        print("Item not found")
+        print("Press enter to continue")
+        read()
+        return
+    end
+
+    local chests = itemCache.chests
+    for i, chestName in pairs(chests) do
+        local chest = peripheral.wrap(chestName)
+        if chest ~= nil then
+            local chest = Chest.new(chest)
+            local moved = chest:moveItems(self:getTrayChest(), id, count)
+            count = count - moved
+
+            if count == 0 then
+                break
+            end
+        end
+    end
 
 end
 

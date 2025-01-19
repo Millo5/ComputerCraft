@@ -15,7 +15,8 @@ function main()
         local choices = {
             "list",
             "index",
-            "add" -- Add items from the tray to the main storage
+            "add", -- Add items from the tray to the main storage
+            "get", -- Get items from the main storage
         }
 
         term.write("Choices: " .. table.concat(choices, ", "))
@@ -36,6 +37,19 @@ function main()
         elseif choice == "add" then
             cache:addTray()
             cache:save()
+        elseif choice == "get" then
+            local args = choice.split(" ")
+            local id = args[2]
+            local count = args[3] or 1
+
+            if id == nil then
+                print("No id provided")
+                print("Press enter to continue")
+                read()
+                break
+            end
+
+            cache:fetch(id, count)
         end
 
     end
