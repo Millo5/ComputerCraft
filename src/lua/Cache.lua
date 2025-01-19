@@ -276,11 +276,15 @@ function Cache:fetch(id, count)
         local chest = peripheral.wrap(chestName)
         if chest ~= nil then
             local chest = Chest.new(chest)
-            local moved = chest:moveItemsById(self:getTrayChest(), id, count)
-            count = count - moved
+            while count > 0 do
+                local moved = chest:moveItemsById(tray, id, count)
+                count = count - moved
+                print("Moved " .. moved .. ", " .. count .. " left")
+                sleep(0.2)
 
-            if count == 0 then
-                break
+                if count == 0 then
+                    break
+                end
             end
         end
     end
