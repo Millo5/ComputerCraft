@@ -46,7 +46,7 @@ function Cache:cacheChest(chest)
 end
 
 function Cache:save()
-    local file = fs.open("cache", "w")
+    local file = fs.open("savedCache", "w")
 
     for chest, items in pairs(self.cache) do
         file.write("#" .. chest .. "\n")
@@ -72,7 +72,7 @@ end
 
 
 function Cache:load()
-    local file = fs.open("cache", "r")
+    local file = fs.open("savedCache", "r")
     local chest = nil
     local item = nil
 
@@ -162,23 +162,15 @@ function Cache:addTray()
     local chests = { peripheral.find("inventory") }
     local trayChest = Chest.new(peripheral.wrap("left"))
 
-    -- filter out the tray chest
-    for i, chest in pairs(chests) do
-        if chest == trayChest.name then
-            table.remove(chests, i)
-            break
-        end
-    end
-
-
     local targetChest = nil
     for slot, item in pairs(trayChest.inv.list()) do
 
         while item.count > 0 do
             
             if targetChest ~= nil then
+                print("Pushing to " .. targetChest.name .. " from " .. trayChest.name)
                 print("Item count before: " .. item.count)
-                trayChest.pushItems(targetChest, slot, item.count)
+                trayChest:moveAll(targetChest)
                 print("Pushed " .. count .. " items to " .. targetChest.name)
                 print("Item count: " .. item.count)
             else
