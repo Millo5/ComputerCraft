@@ -276,7 +276,7 @@ function Cache:fetch(id, count)
         local chest = peripheral.wrap(chestName)
         if chest ~= nil then
             local chest = Chest.new(chest)
-            local moved = chest:moveItems(self:getTrayChest(), id, count)
+            local moved = chest:moveItemsById(self:getTrayChest(), id, count)
             count = count - moved
 
             if count == 0 then
@@ -284,6 +284,8 @@ function Cache:fetch(id, count)
             end
         end
     end
+
+    self:cacheAll()
 
 end
 

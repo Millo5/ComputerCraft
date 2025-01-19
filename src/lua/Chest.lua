@@ -21,4 +21,13 @@ function Chest:moveItems(to, slot, count)
     return self.inv.pushItems(to.name, slot, count)
 end
 
+function Chest:moveItemsById(to, id, count)
+    for i, item in pairs(self.inv.list()) do
+        if item.name == id then
+            return self.inv.pushItems(to.name, i, count)
+        end
+    end
+    return 0
+end
+
 return Chest
