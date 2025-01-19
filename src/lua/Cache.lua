@@ -31,7 +31,9 @@ function Cache:getStorageChests()
     local chests = { peripheral.find("inventory") }
     local invalid = { self.trayId, "front", "back", "left", "right", "top", "bottom" }
     for i, chest in pairs(chests) do
+        print(chest.getName(chest))
         if list_contains(invalid, peripheral.getName(chest)) then
+            print("Removing " .. peripheral.getName(chest))
             table.remove(chests, i)
         end
     end
