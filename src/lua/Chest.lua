@@ -2,11 +2,12 @@
 local Chest = {}
 Chest.__index = Chest
 
-function Chest.new(inv)
+function Chest.new(inv, cache)
     local self = {}
     setmetatable(self, Chest)
     self.inv = inv
     self.name = peripheral.getName(inv)
+    self.cache = cache
     return self
 end
 
