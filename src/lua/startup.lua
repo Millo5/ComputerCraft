@@ -10,11 +10,12 @@ cache:load()
 cache:cacheAll()
 
 
+
 function main()
-
-    parallel.waitForAny(display:start, terminalLoop)
-
+    parallel.waitForAny(function() display:start() end, terminalLoop)
 end
+
+
 function terminalLoop()
     
     while true do
