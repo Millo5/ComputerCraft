@@ -1,6 +1,6 @@
 
 local url = "https://raw.githubusercontent.com/Millo5/ComputerCraft/master/src/lua/"
-local ids = { "init", "startup", "Cache", "Chest" }
+local ids = { "init", "startup", "Cache", "Chest", "Display" }
 
 for i, v in pairs(ids) do
     if fs.exists(v .. ".lua") then

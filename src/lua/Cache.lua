@@ -44,25 +44,28 @@ function Cache:cacheChest(chest)
     self.cache[chest.name] = {}
 
     for i, item in pairs(chest.inv.list()) do
-        local count = self.cache[chest.name][item.name]
+        if item ~= nil then
+            local count = self.cache[chest.name][item.name]
 
-        if count == nil then
-            count = 0
-        end
+            if count == nil then
+                count = 0
+            end
 
-        self.cache[chest.name][item.name] = count + item.count
+            self.cache[chest.name][item.name] = count + item.count
 
-        if self.itemCache[item.name] == nil then
-            local itemCache = {count = 0, chests = {}}
-            itemCache.display = chest.inv.getItemDetail(i).displayName
-            self.itemCache[item.name] = itemCache
-        end
+            if self.itemCache[item.name] == nil then
+                local itemCache = {count = 0, chests = {}}
+                itemCache.display = chest.inv.getItemDetail(i).displayName
+                self.itemCache[item.name] = itemCache
+            end
 
-        self.itemCache[item.name].count = self.itemCache[item.name].count + item.count
-        if not list_contains(self.itemCache[item.name].chests, chest.name) then
-            table.insert(self.itemCache[item.name].chests, chest.name)
+            self.itemCache[item.name].count = self.itemCache[item.name].count + item.count
+            if not list_contains(self.itemCache[item.name].chests, chest.name) then
+                table.insert(self.itemCache[item.name].chests, chest.name)
+            end
         end
     end
+    
 end
 
 function Cache:save()
@@ -189,6 +192,9 @@ function Cache:cacheAll()
 end
 
 function Cache:addTray()
+
+    print("Moving all items from tray to storage")
+
     local trayChest = self:getTrayChest()
     local chests = self:getStorageChests()
 
