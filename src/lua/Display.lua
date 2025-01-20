@@ -18,9 +18,16 @@ function Display:displayItems(cache)
         table.insert(sortables, item)
     end
 
-    table.sort(sortables, function(a, b) return a.display < b.display end)
+    table.sort(sortables, function(a, b) return a.count > b.count end)
+
+    self.monitor.setBackgroundColor(colors.black)
+    self.monitor.setTextColor(colors.white)
 
     self.monitor.clear()
+
+    self.monitor.setCursorPos(1, 1)
+    self.monitor.write("Storage Status: " .. cache.state)
+
     local y = 1
     for name, item in pairs(sortables) do
         self.monitor.setCursorPos(1, y)

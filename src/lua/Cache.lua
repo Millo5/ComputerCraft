@@ -11,6 +11,9 @@ function Cache.new()
     self.itemCache = {} -- { itemName: { display: name, count: count, chests: { chestName } } }
 
     self.trayId = nil
+
+    self.state = "idle"
+
     return self
 end
 
@@ -65,7 +68,7 @@ function Cache:cacheChest(chest)
             end
         end
     end
-    
+
 end
 
 function Cache:save()
@@ -180,6 +183,8 @@ function Cache:print()
 end
 
 function Cache:cacheAll()
+    self:setState("indexing")
+
     local chests = self:getStorageChests()
 
     self.cache = {}
@@ -189,11 +194,15 @@ function Cache:cacheAll()
         local chest = Chest.new(chest)
         self:cacheChest(chest)
     end
+    
+    self:idleState()
 end
 
 function Cache:addTray()
 
     print("Moving all items from tray to storage")
+
+    self:setState("emptying tray")
 
     local trayChest = self:getTrayChest()
     local chests = self:getStorageChests()
@@ -271,18 +280,30 @@ function Cache:addTray()
         read()
     end
 
+    self:idleState()
+
 end
 
+function Cache:setState(state)
+    self.state = state
+end
+function Cache:idleState()
+    return self.state == "idle"
+end
 
 function Cache:fetch(id, count)
     
     local itemCache = self.itemCache[id]
     local tray = self:getTrayChest()
 
+    self:setState("fetching")
+
     if itemCache == nil then
         print("Item not found")
         print("Press enter to continue")
         read()
+
+        self:idleState()
         return
     end
 
@@ -303,7 +324,9 @@ function Cache:fetch(id, count)
     end
 
     self:cacheAll()
-
+    
+    self:idleState()
+    
 end
 
 return Cache

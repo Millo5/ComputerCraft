@@ -12,7 +12,7 @@ cache:cacheAll()
 function displayLoop()
     while true do
         display:displayItems(cache)
-        sleep(1)
+        sleep(0.1)
     end
 end
 
