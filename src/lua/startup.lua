@@ -4,22 +4,15 @@ local Display = require("Display")
 local completion = require("cc.completion")
 
 local cache = Cache.new()
-local display = Display.new()
+local display = Display.new(cache)
 
 cache:load()
 cache:cacheAll()
 
-function displayLoop()
-    while true do
-        display:displayItems(cache)
-        sleep(0.1)
-    end
-end
-
 
 function main()
 
-    parallel.waitForAny(displayLoop, terminalLoop)
+    parallel.waitForAny(display:start, terminalLoop)
 
 end
 function terminalLoop()
