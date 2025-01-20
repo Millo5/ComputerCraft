@@ -9,9 +9,9 @@ for i, v in pairs(ids) do
 end
 
 -- Delete cache file
-if fs.exists("savedCache") then
-    fs.delete("savedCache")
-end
+-- if fs.exists("savedCache") then
+--     fs.delete("savedCache")
+-- end
 
 for i, v in pairs(ids) do
     print("Downloading " .. v .. ".lua")
