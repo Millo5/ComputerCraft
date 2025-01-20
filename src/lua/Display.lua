@@ -27,8 +27,11 @@ function Display:displayItems(cache)
 
     self.monitor.setCursorPos(1, 1)
     self.monitor.write("Storage Status: " .. cache.state)
+    self.monitor.setCursorPos(1, 2)
+    local size = { self.monitor.getSize() }
+    self.monitor.write(string.rep("-", size[1]))
 
-    local y = 1
+    local y = 3
     for name, item in pairs(sortables) do
         self.monitor.setCursorPos(1, y)
         self.monitor.write(item.display .. ": " .. item.count)
