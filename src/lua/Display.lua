@@ -25,7 +25,18 @@ function Display:inputLoop()
 end
 
 function Display:loop()
+    self.monitor.setBackgroundColor(colors.black)
+    self.monitor.setTextColor(colors.white)
+
     while true do
+        self.monitor.clear()
+
+        self.monitor.setCursorPos(1, 1)
+        self.monitor.write("Storage Status: " .. self.cache.state)
+        self.monitor.setCursorPos(1, 2)
+        local size = { self.monitor.getSize() }
+        self.monitor.write(string.rep("-", size[1]))
+
         self:displayItems()
         sleep(0.1)
     end
@@ -41,16 +52,6 @@ function Display:displayItems()
 
     table.sort(sortables, function(a, b) return a.count > b.count end)
 
-    self.monitor.setBackgroundColor(colors.black)
-    self.monitor.setTextColor(colors.white)
-
-    self.monitor.clear()
-
-    self.monitor.setCursorPos(1, 1)
-    self.monitor.write("Storage Status: " .. self.cache.state)
-    self.monitor.setCursorPos(1, 2)
-    local size = { self.monitor.getSize() }
-    self.monitor.write(string.rep("-", size[1]))
 
     local y = 3
     for name, item in pairs(sortables) do
@@ -58,7 +59,7 @@ function Display:displayItems()
         self.monitor.write(item.display .. ": " .. item.count)
         y = y + 1
 
-        if y > 24 then
+        if y > self.monitor.getSize() then
             break
         end
     end
