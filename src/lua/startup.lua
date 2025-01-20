@@ -9,35 +9,42 @@ local display = Display.new()
 cache:load()
 cache:cacheAll()
 
-function main()
-
+function displayLoop()
     while true do
-        cache:cacheAll()
         display:displayItems(cache)
     end
+end
 
-    -- while true do
-    --     term.clear()
-    --     term.setCursorPos(1, 1)
 
-    --     local choices = {
-    --         "list",
-    --         "index",
-    --         "add", -- Add items from the tray to the main storage
-    --         "get", -- Get items from the main storage
-    --     }
+function main()
 
-    --     term.write("Choices: " .. table.concat(choices, ", "))
-    --     term.setCursorPos(1, 2)
-    --     term.write("Choice> ")
-    --     local choice = read(nil, choices, function(text) return completion.choice(text, choices) end)
-    --     local args = {}
-    --     for arg in string.gmatch(choice, "%S+") do
-    --         table.insert(args, arg)
-    --     end
+    parallel.waitForAny(displayLoop, terminalLoop)
 
-    --     handleChoice(choice, args)
-    -- end
+end
+function terminalLoop()
+    
+    while true do
+        term.clear()
+        term.setCursorPos(1, 1)
+
+        local choices = {
+            "list",
+            "index",
+            "add", -- Add items from the tray to the main storage
+            "get", -- Get items from the main storage
+        }
+
+        term.write("Choices: " .. table.concat(choices, ", "))
+        term.setCursorPos(1, 2)
+        term.write("Choice> ")
+        local choice = read(nil, choices, function(text) return completion.choice(text, choices) end)
+        local args = {}
+        for arg in string.gmatch(choice, "%S+") do
+            table.insert(args, arg)
+        end
+
+        handleChoice(choice, args)
+    end
 
 end
 
