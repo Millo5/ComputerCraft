@@ -220,28 +220,29 @@ function Cache:addTray()
                         end
                     end
 
-                    if targetChest == nil then
-                        -- No chest had room to stack the item find a new chest that has room
-                        local chests = self:getStorageChests()
-                        for i, chest in pairs(chests) do
-                            local chest = Chest.new(chest)
-                            local moved = trayChest:moveItems(chest, slot, item.count)
-                            item.count = item.count - moved
+                end
 
-                            if (moved > 0) then
-                                targetChest = chest
-                                break
-                            end
+                if targetChest == nil then
+                    -- No chest had room to stack the item find a new chest that has room
+                    local chests = self:getStorageChests()
+                    for i, chest in pairs(chests) do
+                        local chest = Chest.new(chest)
+                        local moved = trayChest:moveItems(chest, slot, item.count)
+                        item.count = item.count - moved
+
+                        if (moved > 0) then
+                            targetChest = chest
+                            break
                         end
                     end
-
-                    if targetChest == nil then
-                        -- No chests have room to stack the item, break out of loop
-                        outOfSpace = true
-                        break
-                    end
-
                 end
+
+                if targetChest == nil then
+                    -- No chests have room to stack the item, break out of loop
+                    outOfSpace = true
+                    break
+                end
+
             end
 
             local moved = trayChest:moveItems(targetChest, slot, item.count)
