@@ -14,7 +14,7 @@ function Display.new(cache)
 end
 
 function Display:start()
-    parallel.waitForAny(self:loop, self:inputLoop)
+    parallel.waitForAny(function() self:loop() end, function() self:inputLoop() end)
 end
 
 function Display:inputLoop()
