@@ -12,14 +12,22 @@ function Display.new()
 end
 
 function Display:displayItems(cache)
+
+    local sortables = {}
+    for name, item in pairs(cache.itemCache) do
+        table.insert(sortables, item)
+    end
+
+    table.sort(sortables, function(a, b) return a.display < b.display end)
+
     self.monitor.clear()
     local y = 1
-    for name, item in pairs(cache.itemCache) do
+    for name, item in pairs(sortables) do
         self.monitor.setCursorPos(1, y)
         self.monitor.write(item.display .. ": " .. item.count)
         y = y + 1
 
-        if y > 8 then
+        if y > 24 then
             break
         end
     end
