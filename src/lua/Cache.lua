@@ -48,27 +48,35 @@ function Cache:cacheChest(chest)
 
     for i, item in pairs(chest.inv.list()) do
         if item ~= nil then
-            local count = self.cache[chest.name][item.name]
-
-            if count == nil then
-                count = 0
-            end
-
-            self.cache[chest.name][item.name] = count + item.count
-
-            if self.itemCache[item.name] == nil then
-                local itemCache = {count = 0, chests = {}}
-                itemCache.display = chest.inv.getItemDetail(i).displayName
-                self.itemCache[item.name] = itemCache
-            end
-
-            self.itemCache[item.name].count = self.itemCache[item.name].count + item.count
-            if not list_contains(self.itemCache[item.name].chests, chest.name) then
-                table.insert(self.itemCache[item.name].chests, chest.name)
-            end
+            self:cacheItem(chest, item)
         end
     end
 
+end
+
+function Cache:cacheItem(chest, item)
+    self:cacheItemAmount(chest, item, item.count)
+end
+
+function Cache:cacheItemAmount(chest, item, amount)
+    local count = self.cache[chest.name][item.name]
+
+    if count == nil then
+        count = 0
+    end
+
+    self.cache[chest.name][item.name] = count + amount
+
+    if self.itemCache[item.name] == nil then
+        local itemCache = {count = 0, chests = {}}
+        itemCache.display = chest.inv.getItemDetail(i).displayName
+        self.itemCache[item.name] = itemCache
+    end
+
+    self.itemCache[item.name].count = self.itemCache[item.name].count + amount
+    if not list_contains(self.itemCache[item.name].chests, chest.name) then
+        table.insert(self.itemCache[item.name].chests, chest.name)
+    end
 end
 
 function Cache:save()
@@ -138,7 +146,7 @@ function Cache:load()
         end
 
         if string.sub(line, 1, 1) == "#" then
-            local id, display = string.match(line, "#(%w+) (.+)")
+            local id, display = string.match(line, "#(.+) (.+)")
             item = id
             self.itemCache[item] = {count = 0, chests = {}, display = display}
         else
@@ -227,6 +235,8 @@ function Cache:addTray()
                             local moved = trayChest:moveItems(chest, slot, item.count)
                             item.count = item.count - moved
 
+                            self:cacheItemAmount(chest, item, moved)
+
                             if (moved > 0) then
                                 targetChest = chest
                                 break
@@ -244,6 +254,8 @@ function Cache:addTray()
                         local chest = Chest.new(chest)
                         local moved = trayChest:moveItems(chest, slot, item.count)
                         item.count = item.count - moved
+
+                        self:cacheItemAmount(chest, item, moved)
 
                         if (moved > 0) then
                             targetChest = chest
@@ -263,6 +275,8 @@ function Cache:addTray()
             local moved = trayChest:moveItems(targetChest, slot, item.count)
             item.count = item.count - moved
 
+            self:cacheItemAmount(targetChest, item, moved)
+
             if (moved == 0) then
                 targetChest = nil
             end
@@ -271,7 +285,7 @@ function Cache:addTray()
 
     end
 
-    self:cacheAll()
+    -- self:cacheAll()
 
     if outOfSpace then
         print("Out of space!")
@@ -288,7 +302,7 @@ function Cache:setState(state)
     self.state = state
 end
 function Cache:idleState()
-    return self.state == "idle"
+    self.state = "idle"
 end
 
 function Cache:fetch(id, count)
@@ -316,14 +330,14 @@ function Cache:fetch(id, count)
                 local moved = chest:moveItemsById(tray, id, count)
                 count = count - moved
 
+                self:cacheItemAmount(chest, {name = id}, -moved)
+
                 if count == 0 then
                     break
                 end
             end
         end
     end
-
-    self:cacheAll()
     
     self:idleState()
     
