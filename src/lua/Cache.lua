@@ -48,17 +48,17 @@ function Cache:cacheChest(chest)
 
     for i, item in pairs(chest.inv.list()) do
         if item ~= nil then
-            self:cacheItem(chest, item, i)
+            self:cacheItem(chest, item, chest.inv.getItemDetail(i).displayName)
         end
     end
 
 end
 
-function Cache:cacheItem(chest, item, slot)
-    self:cacheItemAmount(chest, item, slot, item.count)
+function Cache:cacheItem(chest, item, display)
+    self:cacheItemAmount(chest, item, display, item.count)
 end
 
-function Cache:cacheItemAmount(chest, item, slot, amount)
+function Cache:cacheItemAmount(chest, item, display, amount)
     local count = self.cache[chest.name][item.name]
 
     if count == nil then
@@ -69,7 +69,7 @@ function Cache:cacheItemAmount(chest, item, slot, amount)
 
     if self.itemCache[item.name] == nil then
         local itemCache = {count = 0, chests = {}}
-        itemCache.display = chest.inv.getItemDetail(slot).displayName
+        itemCache.display = display
         self.itemCache[item.name] = itemCache
     end
 
@@ -234,10 +234,11 @@ function Cache:addTray()
                         local chest = peripheral.wrap(chestName)
                         if chest ~= nil then
                             local chest = Chest.new(chest)
+                            local display = chest.inv.getItemDetail(slot).displayName
                             local moved = trayChest:moveItems(chest, slot, item.count)
                             item.count = item.count - moved
 
-                            self:cacheItemAmount(chest, item, slot, moved)
+                            self:cacheItemAmount(chest, item, display, moved)
 
                             if (moved > 0) then
                                 targetChest = chest
@@ -254,10 +255,11 @@ function Cache:addTray()
                     local chests = self:getStorageChests()
                     for i, chest in pairs(chests) do
                         local chest = Chest.new(chest)
+                        local display = chest.inv.getItemDetail(slot).displayName
                         local moved = trayChest:moveItems(chest, slot, item.count)
                         item.count = item.count - moved
 
-                        self:cacheItemAmount(chest, item, slot, moved)
+                        self:cacheItemAmount(chest, item, display, moved)
 
                         if (moved > 0) then
                             targetChest = chest
@@ -274,10 +276,11 @@ function Cache:addTray()
 
             end
 
+            local display = targetChest.inv.getItemDetail(slot).displayName
             local moved = trayChest:moveItems(targetChest, slot, item.count)
             item.count = item.count - moved
 
-            self:cacheItemAmount(targetChest, item, slot, moved)
+            self:cacheItemAmount(targetChest, item, display, moved)
 
             if (moved == 0) then
                 targetChest = nil

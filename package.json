@@ -10,9 +10,9 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "color": "^4.2.3",
+    "palettext": "^1.0.4",
     "serverboy": "^0.0.7",
-    "websocket": "^1.0.35",
     "ws": "^8.18.0"
-  },
-  "type": "module"
+  }
 }

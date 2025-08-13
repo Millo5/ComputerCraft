@@ -18,128 +18,21 @@ const HEIGHT = 144;
 var bytesSent = 0;
 
 
-
-
-const blitPalette = {
-    "0": [240, 240, 240],
-    "1": [242, 178, 51],
-    "2": [229, 127, 216],
-    "3": [153, 178, 242],
-    "4": [222, 222, 108],
-    "5": [127, 204, 25],
-    "6": [242, 178, 204],
-    "7": [76, 76, 76],
-    "8": [153, 153, 153],
-    "9": [76, 153, 178],
-    "a": [178, 102, 229],
-    "b": [51, 102, 204],
-    "c": [127, 102, 76],
-    "d": [87, 166, 78],
-    "e": [204, 76, 76],
-    "f": [17, 17, 17]
-}
-
-const imageToBlit = (colorData) => {
-    colorData = colorData.filter((_, i) => i % 4 !== 3);
-
-    const palette = Object.values(blitPalette);
-    const paletteBlit = "0123456789abcdef";
-
-    let compacted = [];
-    for (let i = 0; i < colorData.length; i += 3) {
-        const r = colorData[i];
-        const g = colorData[i + 1];
-        const b = colorData[i + 2];
-
-        let closest = 0;
-        let closestDist = 1000000;
-        for (let j = 0; j < palette.length; j++) {
-            const [pr, pg, pb] = palette[j];
-            const dist = Math.sqrt((pr - r) ** 2 + (pg - g) ** 2 + (pb - b) ** 2);
-            if (dist < closestDist) {
-                closest = j;
-                closestDist = dist;
-            }
-        }
-
-        compacted.push(paletteBlit[closest]);
-    }
-
-    return compacted.join('');
-}
-
-const buildBlit = (a, b, c, d, e, f) => {
-    const all = [a, b, c, d, e, f];
-
-    const countMap = {};
-    all.forEach((c) => {
-        countMap[c] = (countMap[c] || 0) + 1;
-    });
-
-    const sorted = Object.keys(countMap).sort((a, b) => countMap[b] - countMap[a]);
-    const primary = sorted[0];
-    const secondary = sorted[1];
-
-    const adjusted = all.map((c) => c === primary ? primary : secondary);
-
-    // Build the character
-    let char = 128;
-    [a, b, c, d, e, f] = adjusted;
-    if (a === secondary) char += 1;
-    if (b === secondary) char += 2;
-    if (c === secondary) char += 4;
-    if (d === secondary) char += 8;
-    if (e === secondary) char += 16;
-
-    const background = "0123456789abcdef".indexOf(primary);
-    const foreground = "0123456789abcdef".indexOf(secondary);
-    return { char, foreground, background };
-}
-
-// const imgBlit = imageToBlit(gameboy.getScreen());
-
-// console.log(buildBlit(
-//     'f', 'b', 'a', 'd', 'd', 'a'
-// ))
-
-
 // ----------------------------------------------------------------------------------------------------------------------------
 
-const sendScreen = (ws) => {
-    const imgBlit = imageToBlit(gameboy.getScreen());
-    let byteArr = [];
-
-    for (let y = 0; y < HEIGHT; y += 3) {
-        for (let x = 0; x < WIDTH; x += 2) {
-            const i = y * WIDTH + x;
-            const { char, foreground, background } = buildBlit(
-                imgBlit[i],
-                imgBlit[i + 1],
-                imgBlit[i + WIDTH],
-                imgBlit[i + WIDTH + 1],
-                imgBlit[i + WIDTH * 2],
-                imgBlit[i + WIDTH * 2 + 1]
-            );
-
-            byteArr.push(char, foreground << 4 | background);
-        }
-
-        byteArr.push(0, 0);
-    }
-
-    ws.send(new Uint8Array(byteArr));
-}
 
 const blitColors = [1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768];
 
-
+const colorDistance = (r1, g1, b1, r2, g2, b2) => {
+    return Math.sqrt((r1 - r2) ** 2 + (g1 - g2) ** 2 + (b1 - b2) ** 2);
+}
 
 const findClosest = (r, g, b, colors) => {
     let closest = 0;
     let closestDist = 1000000;
     for (let j = 0; j < colors.length; j++) {
         const [pr, pg, pb] = colors[j];
-        const dist = Math.sqrt((pr - r) ** 2 + (pg - g) ** 2 + (pb - b) ** 2);
+        const dist = colorDistance(pr, pg, pb, r, g, b);
         if (dist < closestDist) {
             closest = j;
             closestDist = dist;
@@ -149,49 +42,29 @@ const findClosest = (r, g, b, colors) => {
 }
 
 const sendScreenNew = (ws) => {
+    console.time("frame");
 
     const pixels = gameboy.getScreen();
     const colorsBuffer = Buffer.alloc(blitColors.length * 3);
 
-    console.log("\n");
-
-    console.time('palette');
-    const colors = palette(pixels, {
-        width: WIDTH,
-        qtyMax: 16
-    });
-    console.timeEnd('palette');
+    // console.time('palette');
+    let colors = [[0, 0, 0]];
+    const seenColors = new Set();
+    for (let gbColor of gbPalette) {
+        const dec = gbColor & 0xffffff;
+        if (seenColors.has(dec)) continue;
+        colors.push(dec);
+        seenColors.add(dec);
+    }
+    colors = colors.slice(0, 16).map((c) => color(c).rgb().array());
 
     for (let i = 0; i < blitColors.length; i++) {
         let c = 0;
         if (colors[i]) {
-            c = colors[i].color[0] << 16 | colors[i].color[1] << 8 | colors[i].color[2];
+            c = colors[i][0] << 16 | colors[i][1] << 8 | colors[i][2];
         }
         colorsBuffer.writeUIntBE(c, i * 3, 3);
     }
-
-
-    // let str = '';
-    // for (let y = 0; y < HEIGHT; y++) {
-    //     for (let x = 0; x < WIDTH; x++) {
-    //         const r = pixels[(y * WIDTH + x) * 4];
-    //         const g = pixels[(y * WIDTH + x) * 4 + 1];
-    //         const b = pixels[(y * WIDTH + x) * 4 + 2];
-
-    //         let closest = 0;
-    //         let closestDist = 1000000;
-    //         for (let j = 0; j < colors.length; j++) {
-    //             const [pr, pg, pb] = colors[j].color;
-    //             const dist = Math.sqrt((pr - r) ** 2 + (pg - g) ** 2 + (pb - b) ** 2);
-    //             if (dist < closestDist) {
-    //                 closest = j;
-    //                 closestDist = dist;
-    //             }
-    //         }
-    //         str += closest.toString(16);
-    //     }
-    //     str += '\n';
-    // }
 
     // Converts (2, 3) pixels into one character with a foreground and background color
     // Arguments are between 0 and 15
@@ -221,8 +94,8 @@ const sendScreenNew = (ws) => {
             if (c === secondary) return secondary;
 
             // Find the nearest color
-            const [r, g, b] = colors[c].color;
-            return findClosest(r, g, b, [colors[primary].color, colors[secondary].color]);
+            const [r, g, b] = colors[c];
+            return findClosest(r, g, b, [colors[primary], colors[secondary]]);
         })
 
         // Build the character
@@ -247,24 +120,21 @@ const sendScreenNew = (ws) => {
         return { char, foreground, background };
     }
 
-    // let blitStr = '';
-    // let colStr = '';
-
     const blitBuffer = Buffer.alloc(HEIGHT * WIDTH / 2);
     const colBuffer = Buffer.alloc(HEIGHT * WIDTH / 2);
 
-    console.time('blit');
+    // console.time('blit');
     const colorsClosestCompatible = colors.map((c) => c.color);
     for (let y = 0; y < HEIGHT; y += 3) {
         for (let x = 0; x < WIDTH; x += 2) {
             const i = y * WIDTH + x;
             const { char, foreground, background } = constructCompact(
-                findClosest(pixels[i * 4], pixels[i * 4 + 1], pixels[i * 4 + 2], colorsClosestCompatible),
-                findClosest(pixels[i * 4 + 4], pixels[i * 4 + 5], pixels[i * 4 + 6], colorsClosestCompatible),
-                findClosest(pixels[i * 4 + WIDTH * 4], pixels[i * 4 + WIDTH * 4 + 1], pixels[i * 4 + WIDTH * 4 + 2], colorsClosestCompatible),
-                findClosest(pixels[i * 4 + WIDTH * 4 + 4], pixels[i * 4 + WIDTH * 4 + 5], pixels[i * 4 + WIDTH * 4 + 6], colorsClosestCompatible),
-                findClosest(pixels[i * 4 + WIDTH * 8], pixels[i * 4 + WIDTH * 8 + 1], pixels[i * 4 + WIDTH * 8 + 2], colorsClosestCompatible),
-                findClosest(pixels[i * 4 + WIDTH * 8 + 4], pixels[i * 4 + WIDTH * 8 + 5], pixels[i * 4 + WIDTH * 8 + 6], colorsClosestCompatible)
+                findClosest(pixels[i * 4], pixels[i * 4 + 1], pixels[i * 4 + 2], colors),
+                findClosest(pixels[i * 4 + 4], pixels[i * 4 + 5], pixels[i * 4 + 6], colors),
+                findClosest(pixels[i * 4 + WIDTH * 4], pixels[i * 4 + WIDTH * 4 + 1], pixels[i * 4 + WIDTH * 4 + 2], colors),
+                findClosest(pixels[i * 4 + WIDTH * 4 + 4], pixels[i * 4 + WIDTH * 4 + 5], pixels[i * 4 + WIDTH * 4 + 6], colors),
+                findClosest(pixels[i * 4 + WIDTH * 8], pixels[i * 4 + WIDTH * 8 + 1], pixels[i * 4 + WIDTH * 8 + 2], colors),
+                findClosest(pixels[i * 4 + WIDTH * 8 + 4], pixels[i * 4 + WIDTH * 8 + 5], pixels[i * 4 + WIDTH * 8 + 6], colors)
             );
 
             const charColors = foreground << 4 | background;
@@ -277,7 +147,7 @@ const sendScreenNew = (ws) => {
         // blitStr += '\n';
         // colStr += '\n'; // Keep the same length
     }
-    console.timeEnd('blit');
+    // console.timeEnd('blit');
 
     // const toSend = Buffer.concat([colorsBuffer, Buffer.from(str)]);
     // const toSend = Buffer.concat([colorsBuffer, Buffer.from(blitStr), Buffer.from(colStr)]);
@@ -288,8 +158,8 @@ const sendScreenNew = (ws) => {
     bytesSent += byteCount;
 
     const mb = bytesSent / 1024 / 1024;
-    process.stdout.write(`\rBytes sent: ${mb.toFixed(2)} MB`);
-
+    process.stdout.write(`\rBytes sent: ${mb.toFixed(2)} MB\n`);
+    console.timeEnd("frame");
 }
 
 
@@ -312,7 +182,10 @@ setInterval(() => {
         }
 
         gameboy.doFrame();
-        // gbPalette = [...core.gbcOBJPalette, ...core.gbcBGPalette];
+        gameboy.doFrame();
+        gameboy.doFrame();
+        gameboy.doFrame();
+        gbPalette = [...core.gbcOBJPalette, ...core.gbcBGPalette];
         // console.log(gbPalette);
         if (ack) {
             ack = false;

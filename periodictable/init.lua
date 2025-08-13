@@ -1,7 +1,7 @@
 
 -- local url = "https://raw.githubusercontent.com/Millo5/ComputerCraft/master/src/lua/"
-local url = "https://raw.githubusercontent.com/Millo5/ComputerCraft/refs/heads/master/src/lua/"
-local ids = { "init", "startup", "Cache", "Chest", "Display" }
+local url = "https://raw.githubusercontent.com/Millo5/ComputerCraft/refs/heads/master/src/periodictable/"
+local ids = { "init", "startup", "PeriodicTable" }
 
 for i, v in pairs(ids) do
     if fs.exists(v .. ".lua") then
@@ -9,10 +9,6 @@ for i, v in pairs(ids) do
     end
 end
 
--- Delete cache file
--- if fs.exists("savedCache") then
---     fs.delete("savedCache")
--- end
 
 for i, v in pairs(ids) do
     print("Downloading " .. v .. ".lua")

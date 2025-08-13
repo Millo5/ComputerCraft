@@ -1,0 +1,138 @@
+local LibDeflate = require "LibDeflate"
+-- local surface = dofile("surface")
+
+local websocket = http.websocket("wss://bd03-81-207-247-206.ngrok-free.app")
+
+local monitor = peripheral.find("monitor")
+
+monitor.setTextScale(0.5)
+local w,h = monitor.getSize()
+local width = 80
+local height = 48
+
+-- local screen = surface.create(w, h)
+
+local xOffset = (w - width) / 2
+local yOffset = (h - height) / 2
+
+monitor.setTextScale(0.5)
+monitor.setCursorPos(1, 1)
+monitor.setBackgroundColor(colors.black)
+monitor.setTextColor(colors.white)
+monitor.clear()
+
+
+while true do
+    local response = websocket.receive()
+    if response == nil then
+        break
+    end
+    -- print(response)
+    local bytes = { string.byte(response, 1, -1) }
+
+    for i = 0, 15 do
+        local r = bytes[i * 3 + 1] / 255
+        local g = bytes[i * 3 + 2] / 255
+        local b = bytes[i * 3 + 3] / 255
+        monitor.setPaletteColor(2^i, r, g, b)
+
+        print(i, r, g, b)
+    end
+
+    -- Trim the first 48 bytes
+    response = response:sub(49)
+
+    local x = xOffset
+    local y = yOffset
+    monitor.setCursorPos(x, y)
+    
+    for i = 1, #response do
+
+        local char = string.char(string.byte(response, i))
+
+        if char == "\n" then
+            y = y + 1
+            monitor.setCursorPos(x, y)
+        else
+            monitor.blit(" ", char, char)
+        end
+
+    end
+
+    -- -- for each byte
+    -- for i = 1, #bytes do
+    --     local byte = bytes[i]
+    --     local char = string.char(byte)
+    --     monitor.write(char)
+
+    --     print(i, byte, char)
+    -- end
+
+    -- print("Received " .. #bytes .. " bytes")
+
+    -- for i = 0, 15 do
+    --     monitor.setPaletteColor(2^i, buffer:byte(i * 3 + 1, i * 3 + 1) / 255, buffer:byte(i * 3 + 2, i * 3 + 2) / 255, buffer:byte(i * 3 + 3, i * 3 + 3) / 255)
+    -- end
+
+    -- break
+end
+
+-- while true do
+--     local response = websocket.receive()
+--     if response then
+
+--         local bytes = { string.byte(response, 1, -1) }
+--         -- loop over the bytes, 2 at a time
+--         -- for i = 1, #bytes, 2 do
+
+--         --     local char = string.char(bytes[i])
+--         --     local cols = bytes[i + 1]
+
+--         --     local fg = string.format("%X", bit.band(bit.brshift(cols, 4), 0xF))
+--         --     local bg = string.format("%X", bit.band(cols, 0xF))
+
+--         --     term.blit(char, fg, bg)
+--         -- end
+        
+--         local line = {
+--             fg = "",
+--             bg = "",
+--             text = ""
+--         }
+--         local x = xOffset
+--         local y = yOffset
+--         monitor.setCursorPos(x, y)
+--         for i = 1, #bytes, 2 do
+--             local charB = bytes[i]
+
+--             if charB == 0 then
+--                 monitor.blit(line.text, line.fg, line.bg)
+--                 line = {
+--                     fg = "",
+--                     bg = "",
+--                     text = ""
+--                 }
+                
+--                 x = xOffset
+--                 y = y + 1
+--                 monitor.setCursorPos(x, y)
+--             else
+--                 x = x + 1
+
+--                 local char = string.char(charB)
+--                 local cols = bytes[i + 1]
+--                 local fg = string.format("%X", bit.band(bit.brshift(cols, 4), 0xF))
+--                 local bg = string.format("%X", bit.band(cols, 0xF))
+                
+--                 line.fg = line.fg .. fg
+--                 line.bg = line.bg .. bg
+--                 line.text = line.text .. char
+--             end
+--         end
+
+--         monitor.blit(line.text, line.fg, line.bg)
+--     else 
+--         print("No response")
+--         break
+--     end
+-- end
