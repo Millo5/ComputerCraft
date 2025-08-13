@@ -16,6 +16,7 @@ for i, v in pairs(ids) do
 
     print(url .. v .. ".lua" .. uniqueParam)
     local h = http.get(url .. v .. ".lua" .. uniqueParam)
+    print(h)
     local f = fs.open(v .. ".lua", "w")
     f.write(h.readAll())
     f.close()
